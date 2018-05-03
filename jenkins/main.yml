@@ -1,0 +1,26 @@
+- hosts: server02
+- name: Instalando JDK
+  apt: 
+    name: openjdk-8-jdk
+    update_cache: yes
+  become: yes
+- name: Adicionando Repo
+  apt_key:
+    url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
+  become: yes
+- name: Copiando jenkins.list
+  copy:
+    src: jenkins.list
+    dest: /etc/apt/sources.list.d/jenkins.list
+  become: yes
+- name: Instalando Jenkins
+  apt: 
+    name: jenkins
+    update_cache: yes
+  become: yes
+- name: Jenkins Service
+  service:
+    name: jenkins
+    state: started
+    enabled: yes
+   become: yes

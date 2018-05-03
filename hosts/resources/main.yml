@@ -1,0 +1,7 @@
+hosts:
+  - ip: 192.168.239.139
+    alias: server01
+  - ip: 192.168.239.141
+    alias: server02
+  - ip: 192.168.239.140
+    alias: server03
