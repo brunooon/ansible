@@ -1,19 +1,20 @@
 ---
-- hosts: server03
-- name: Instalando MySQL
-  sudo: yes
-  apt: pkg={{ item }}
-  state: latest
-  with_items:
-    - mysql-server
-    - mysql-client
+- name: Instalando no client
+  hosts: localhost
   become: yes
-- name: MySQL Service
-  service:
-    name: {{ item }}
-    state: started
-    enabled: yes
-  with_items:
-    - mysql_server
-    - mysql-client
-  become: yes
+  
+  tasks:
+  - name: Atualização de pacotes
+    apt:
+      upgrade: yes
+      update_cache: yes
+  - name: Instalando MySQL
+    apt: pkg="{{ item }}"
+    with_items:
+      - mysql-server
+      - mysql-client
+  - name: MySQL Service
+    service:
+      name: mysql
+      state: started
+      enabled: yes

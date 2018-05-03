@@ -1,26 +1,30 @@
-- hosts: server02
-- name: Instalando JDK
-  apt: 
-    name: openjdk-8-jdk
-    update_cache: yes
+---
+- name: Instalando no client
+  hosts: localhost
   become: yes
-- name: Adicionando Repo
-  apt_key:
-    url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
-  become: yes
-- name: Copiando jenkins.list
-  copy:
-    src: jenkins.list
-    dest: /etc/apt/sources.list.d/jenkins.list
-  become: yes
-- name: Instalando Jenkins
-  apt: 
-    name: jenkins
-    update_cache: yes
-  become: yes
-- name: Jenkins Service
-  service:
-    name: jenkins
-    state: started
-    enabled: yes
-   become: yes
+  
+  tasks:
+  - name: Atualização de pacotes
+    apt:
+      upgrade: yes
+      update_cache: yes
+  - name: Instalando SDK
+    apt: 
+      name: openjdk-8-jdk
+      update_cache: yes
+  - name: Adicionando Repo
+    apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+  - name: Adicionando no sources.list
+    lineinfile:
+      dest: /etc/apt/sources.list
+      line: "deb https://pkg.jenkins.io/debian-stable binary/"
+  - name: Instalando Jenkins
+    apt: 
+      name: jenkins
+      update_cache: yes
+  - name: Jenkins Service
+    service:
+      name: jenkins
+      state: started
+      enabled: yes
