@@ -5,16 +5,19 @@
   
   tasks:
   - name: Atualização de pacotes
-    apt:
-      upgrade: yes
-      update_cache: yes
+    yum: name=* state=latest
+
+  - name: Fazendo download do rpm
+    get_url: url=https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm dest=/root/
+  
+  - name: Instalando o repo
+    command: rpm -ivh ~/mysql57-community-release-el7-9.noarch.rpm
+
   - name: Instalando MySQL
-    apt: pkg="{{ item }}"
-    with_items:
-      - mysql-server
-      - mysql-client
+    yum: name=mysql-server state=latest update_cache=yes
+ 
   - name: MySQL Service
     service:
-      name: mysql
+      name: mysqld
       state: started
       enabled: yes

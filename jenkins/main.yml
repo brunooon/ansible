@@ -5,24 +5,20 @@
   
   tasks:
   - name: Atualização de pacotes
-    apt:
-      upgrade: yes
-      update_cache: yes
-  - name: Instalando SDK
-    apt: 
-      name: openjdk-8-jdk
-      update_cache: yes
-  - name: Adicionando Repo
-    apt_key:
-      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
-  - name: Adicionando no sources.list
-    lineinfile:
-      dest: /etc/apt/sources.list
-      line: "deb https://pkg.jenkins.io/debian-stable binary/"
+    yum: name=* state=latest
+
+  - name: Fazendo download do repo
+    get_url: url=https://pkg.jenkins.io/redhat-stable/jenkins.repo dest=/etc/yum.repos.d/
+
+  - name: Instalando o repo
+    command: rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+  - name: Instalando JDK
+    yum: name=java state=latest update_cache=yes
+
   - name: Instalando Jenkins
-    apt: 
-      name: jenkins
-      update_cache: yes
+    yum: name=jenkins state=latest update_cache=yes
+
   - name: Jenkins Service
     service:
       name: jenkins
