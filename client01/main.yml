@@ -1,0 +1,69 @@
+---
+- name: Instalando no client
+  hosts: localhost
+  become: yes
+  
+  tasks:
+  - stat: path=/var/lib/jenkins
+    register: jenkins_dir
+
+  - name: Atualização de pacotes
+    yum: name=* state=latest
+
+  - name: Fazendo download do repo do Jenkins
+    get_url: url=https://pkg.jenkins.io/redhat-stable/jenkins.repo dest=/etc/yum.repos.d/
+
+  - name: Instalando o repo do Jenkins
+    command: rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+    when: jenkins_dir.stat.exists == False   
+
+  - name: Instalando JDK
+    yum: name=java state=latest update_cache=yes
+
+  - name: Instalando Jenkins
+    yum: name=jenkins state=latest update_cache=yes
+
+  - name: Jenkins Service
+    service:
+      name: jenkins
+      state: started
+      enabled: yes
+
+  - name: Abrindo portal no firewall para o Jenkins
+    firewalld:
+      port: 8080/tcp 
+      zone: public 
+      permanent: true 
+      state: enabled 
+      immediate: yes
+
+  - name: Criando usuario de teste
+    user:
+     name: teste
+     password: '$6$4ZxzQNMyYCGrc.AB$WegFsGqQ9pY8lQNJJZHl2kGOUyyK207Ny/V2vw4F8/409B5cnMpiMDzeU8bFWkRSYvflpu/hCnXr1kdH1kSZe1'
+     state: present
+     shell: /bin/bash 
+     system: no             
+     createhome: yes        
+     home: /home/teste
+
+  - name: Criando repo do MongoDB
+    yum_repository:
+      name: "mongodb-org-3.6"
+      description: "MongoDB Repository"
+      baseurl: https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.6/x86_64/
+      gpgcheck: yes
+      enabled: yes
+      gpgkey: https://www.mongodb.org/static/pgp/server-3.6.asc
+      file: mongodb-org-3.6
+
+  - name: Instalando MongoDB
+    yum: name=mongodb-org state=latest update_cache=yes
+
+  - name: MongoDB Service
+    service:
+      name: mongod
+      state: started
+      enabled: yes
+
+

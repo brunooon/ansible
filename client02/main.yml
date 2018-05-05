@@ -1,0 +1,30 @@
+---
+- name: Instalando no client
+  hosts: localhost
+  become: yes
+  
+  tasks:
+  - stat: path=/var/lib/mysql
+    register: mysql_dir
+
+  - name: Atualização de pacotes
+    yum: name=* state=latest
+
+  - name: Fazendo download do rpm
+    get_url: url=https://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm dest=/root/
+  
+  - name: Instalando o repo
+    command: rpm -U ~/mysql57-community-release-el7-10.noarch.rpm
+    when: mysql_dir.stat.exists == False
+
+  - name: Instalando MySQL
+    yum: name=mysql-server state=latest update_cache=yes
+ 
+  - name: MySQL Service
+    service:
+      name: mysqld
+      state: started
+      enabled: yes
+
+  - name: Abrir portal no fireall
+    firewalld: port=3306/tcp zone=public permanent=true state=enabled immediate=yes
